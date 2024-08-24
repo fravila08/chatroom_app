@@ -4,15 +4,49 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import ListGroup from "react-bootstrap/ListGroup";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function ChatBox({ user }) {
   const [messages, setMessages] = useState([]);
   const [body, setBody] = useState("");
+  const socketRef = useRef(null); // Declare the socket variable outside the useEffect and functions
+
+  useEffect(() => {
+    // Initialize the WebSocket connection
+    socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/chat/main/");
+
+    // Handle incoming messages
+    socketRef.current.onmessage = (e) => {
+      const newMessage = JSON.parse(e.data);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    };
+
+    // Clean up the WebSocket connection when the component unmounts
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({ message: body, user: user })
+      );
+      setBody("");
+    } else {
+      console.error("WebSocket is not open.");
+    }
+  };
+
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
 
   const handleMessage = (e) => {
     e.preventDefault();
-    setMessages([...messages, { user: user, body: body }]);
+    sendMessage();
   };
 
   return (
@@ -26,7 +60,7 @@ function ChatBox({ user }) {
             >
               <div className="ms-2 me-auto">
                 <div className="fw-bold">{message.user}</div>
-                {message.body}
+                {message.message}
               </div>
             </ListGroup.Item>
           ))}

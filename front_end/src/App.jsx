@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-      <UserAuthForm setUser={setUser} />
+      {user ? null : <UserAuthForm setUser={setUser} />}
       <h1>{user && user}</h1>
       {user ? <ChatBox user={user} /> : null}
     </>
