@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import UserAuthForm from "./components/UserAuth";
 import { userConfirmation } from "./Api";
+import ChatBox from "./components/ChatBox";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -10,13 +11,14 @@ function App() {
     const stablishUser = async () => {
       setUser(await userConfirmation());
     };
-    stablishUser()
+    stablishUser();
   }, []);
 
   return (
     <>
       <UserAuthForm setUser={setUser} />
       <h1>{user && user}</h1>
+      {user ? <ChatBox user={user} /> : null}
     </>
   );
 }
