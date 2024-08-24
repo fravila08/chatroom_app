@@ -61,5 +61,5 @@ class LogOut(UserViews):
     def post(self, request):
         user = request.user
         logout(request)
-        user.aut_token.delete()
+        user.auth_token.delete()
         return Response("Logged Out", status=s.HTTP_200_OK)
